@@ -1,0 +1,4 @@
+export const ANIMATION = {
+  UPDATE_TIME_MS: 5,
+  ROD_BLUR_COEFFICIENT: 1.5, // 0.04,
+};
