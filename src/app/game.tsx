@@ -4,6 +4,7 @@ import rod from "../images/vara.png";
 import float from "../images/float.png";
 import Image from "next/image";
 import { ANIMATION } from "@/constants";
+import { STATUS, STEPS } from "@/hooks/useRodStatus";
 
 import {
   AnimationStatusType,
@@ -65,8 +66,8 @@ export function Game() {
   const [startTime, setStartTime] = useState(Date.now());
   const [runTime, setRunTime] = useState(false);
 
-  const [status, setStatus] = useState<AnimationStatusType>(0);
-  const [step, setStep] = useState<AnimationStepType>(1);
+  const [status, setStatus] = useState<AnimationStatusType>(STATUS.INITIAL);
+  const [step, setStep] = useState<AnimationStepType>(STEPS.ARM_ROD);
   const { rodX, rodY, rodAngle, rodBlur, timeToEnd } = useRodStatus({
     step,
     time,
@@ -87,53 +88,78 @@ export function Game() {
     return () => clearInterval(interval);
   }, [startTime, runTime]);
 
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === "e" || event.key === "E") {
+        console.log("E key pressed!");
+        if (status === STATUS.THROWN_FLOAT) {
+          setStartTime(Date.now());
+          setTime(0);
+          setRunTime(true);
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyPress);
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [status]);
+
   function resolveSteps() {
-    if (timeToEnd < 0 && step === 1) {
+    if (timeToEnd < 0 && step === STEPS.ARM_ROD) {
       setRunTime(false);
-      setStatus(1);
-      setStep(2);
+      setStatus(STATUS.ARMED_ROD);
+      setStep(STEPS.THROW_ROD_HALF);
 
       return;
     }
-    if (timeToEnd < 0 && step === 2) {
+    if (timeToEnd < 0 && step === STEPS.THROW_ROD_HALF) {
       setStartTime(Date.now());
       setTime(0);
-      setStatus(2);
-      setStep(3);
+      setStatus(STATUS.THROWN_ROD_HALF);
+      setStep(STEPS.THROW_ROD);
       return;
     }
-    if (timeToEnd < 0 && step === 3) {
+    if (timeToEnd < 0 && step === STEPS.THROW_ROD) {
       setStartTime(Date.now());
       setTime(0);
-      setStatus(3);
-      setStep(4);
+      setStatus(STATUS.THROWN_ROD);
+      setStep(STEPS.THROW_FLOAT);
       return;
     }
-    if (timeToEnd < 0 && step === 4) {
+    if (timeToEnd < 0 && step === STEPS.THROW_FLOAT) {
       setRunTime(false);
-      setStatus(4);
-      setStep(5);
+      setStatus(STATUS.THROWN_FLOAT);
+      setStep(STEPS.FISH_PULL_HALF);
       return;
     }
-    if (timeToEnd < 0 && step === 5) {
+    if (timeToEnd < 0 && step === STEPS.FISH_PULL_HALF) {
       setStartTime(Date.now());
       setTime(0);
-      setStatus(5);
-      setStep(6);
+      setStatus(STATUS.FISH_PULLED_HALF);
+      setStep(STEPS.FISH_PULL);
       return;
     }
-    if (timeToEnd < 0 && step === 6) {
+    if (timeToEnd < 0 && step === STEPS.FISH_PULL) {
       setRunTime(false);
-      setStatus(0);
-      setStep(1);
+      setStatus(STATUS.FISH_PULLED);
+      setStep(STEPS.PULL_ROD_HALF);
+      return;
+    }
+    if (timeToEnd < 0 && step === STEPS.PULL_ROD_HALF) {
+      setStartTime(Date.now());
+      setTime(0);
+      setStatus(STATUS.PULLED_ROD_HALF);
+      setStep(STEPS.PULL_ROD);
+      return;
+    }
+    if (timeToEnd < 0 && step === STEPS.PULL_ROD) {
+      setStatus(STATUS.INITIAL);
+      setStep(STEPS.ARM_ROD);
+      setRunTime(false);
       return;
     }
   }
-
-  useEffect(() => {
-    console.log("step", step);
-    // console.log("time", time);
-  }, [step]);
 
   useEffect(() => {
     if (runTime) {
@@ -159,12 +185,11 @@ export function Game() {
     if (step === 1) {
       setStartTime(Date.now());
       setTime(0);
-      setStatus(1);
-      setStep(2);
+      setStatus(STATUS.ARMED_ROD);
+      setStep(STEPS.THROW_ROD_HALF);
     }
 
     console.log("mouseup");
-    //setRunTime(false);
   }
 
   function handleMouseDown() {
@@ -187,6 +212,9 @@ export function Game() {
     40
   );
 
+  const croppedPct = 40;
+  const cropppedSize = status > 3 ? 40 * (1 - croppedPct / 100) : 40;
+
   return (
     <>
       <Image
@@ -208,18 +236,27 @@ export function Game() {
           filter: `blur(${rodBlur}px)`,
         }}
       />
-      <Image
-        src={float}
-        alt=""
-        width="40"
-        height="40"
+      <div
         className="absolute"
         style={{
+          maxWidth: "40px",
+          maxHeight: `${cropppedSize}px`,
           left: `${floatX}px`,
           top: `${floatY}px`,
-          filter: `blur(${rodBlur}px)`,
+          overflow: "hidden",
         }}
-      />
+      >
+        <Image
+          src={float}
+          alt=""
+          width="40"
+          height="40"
+          objectFit="cover"
+          style={{
+            filter: `blur(${rodBlur}px)`,
+          }}
+        />
+      </div>
     </>
   );
 }
