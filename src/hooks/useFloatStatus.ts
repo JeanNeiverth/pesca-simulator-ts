@@ -1,58 +1,56 @@
 import { ANIMATION } from "@/constants";
 import { useEffect, useState } from "react";
 import { PositionEncoder } from "./PositionEncoder";
+import { AnimationStatusType, AnimationStepType } from "./useRodStatus";
 
-export type AnimationStatusType = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
-export type AnimationStepType = 0 | 1 | 2 | 3 | 4 | 5 | 6;
-
-const ROD_STATES = [
+const FLOAT_STATES = [
   {
     id: 1,
-    x: 1400,
-    y: 300,
-    angle: -10,
+    x: 1340,
+    y: 900,
+    angle: 0,
     timeToAchieveMs: 2000,
   },
   {
     id: 2,
     x: 2400,
-    y: 450,
-    angle: 60,
+    y: 1100,
+    angle: 0,
     timeToAchieveMs: 800,
   },
   {
     id: 3,
-    x: 1000,
-    y: 500,
-    angle: -50,
+    x: 1800,
+    y: -150,
+    angle: 0,
     timeToAchieveMs: 300,
   },
   {
     id: 4,
-    x: 1400,
-    y: 300,
-    angle: -10,
+    x: 1100,
+    y: -50,
+    angle: 0,
     timeToAchieveMs: 600,
   },
   {
     id: 5,
-    x: 1400,
-    y: 300,
-    angle: -10,
-    timeToAchieveMs: 2000,
+    x: 500,
+    y: 500,
+    angle: 0,
+    timeToAchieveMs: 1000,
   },
   {
     id: 6,
-    x: 2400,
-    y: 450,
-    angle: 60,
+    x: 500,
+    y: 500,
+    angle: 0,
     timeToAchieveMs: 300,
   },
   {
     id: 7,
-    x: 1400,
-    y: 300,
-    angle: -10,
+    x: 500,
+    y: 500,
+    angle: 0,
     timeToAchieveMs: 800,
   },
 ];
@@ -64,8 +62,8 @@ type StepMappingType = {
   angle: PositionEncoder;
 };
 
-const stepMapping: StepMappingType[] = ROD_STATES.map((state) => {
-  const nextState = ROD_STATES.filter(
+const stepMapping: StepMappingType[] = FLOAT_STATES.map((state) => {
+  const nextState = FLOAT_STATES.filter(
     (_nextState) => _nextState.id === state.id + 1
   )[0];
   if (nextState) {
@@ -80,7 +78,7 @@ const stepMapping: StepMappingType[] = ROD_STATES.map((state) => {
       ),
     };
   } else {
-    const state1 = ROD_STATES[0];
+    const state1 = FLOAT_STATES[0];
     return {
       id: state.id,
       x: new PositionEncoder(state.x, state1.x, state1.timeToAchieveMs),
@@ -107,11 +105,11 @@ function computeXYAngle(
   return { x, y, angle };
 }
 
-function computeBlur(rodAngleDiff: number): number {
-  return ANIMATION.ROD_BLUR_COEFFICIENT * Math.abs(rodAngleDiff);
+function computeBlur(floatAngleDiff: number): number {
+  return ANIMATION.ROD_BLUR_COEFFICIENT * Math.abs(floatAngleDiff);
 }
 
-export const useRodStatus = ({
+export const useFloatStatus = ({
   step,
   time,
   runTime,
@@ -120,33 +118,33 @@ export const useRodStatus = ({
   time: number;
   runTime: boolean;
 }): {
-  rodX: number;
-  rodY: number;
-  rodAngle: number;
-  rodBlur: number;
+  floatX: number;
+  floatY: number;
+  floatAngle: number;
+  floatBlur: number;
   timeToEnd: number;
 } => {
-  const [rodX, setRodX] = useState(ROD_STATES[0].x);
-  const [rodY, setRodY] = useState(ROD_STATES[0].y);
-  const [rodAngle, setRodAngle] = useState(ROD_STATES[0].angle);
-  const [rodBlur, setRodBlur] = useState(0);
+  const [floatX, setRodX] = useState(FLOAT_STATES[0].x);
+  const [floatY, setRodY] = useState(FLOAT_STATES[0].y);
+  const [floatAngle, setRodAngle] = useState(FLOAT_STATES[0].angle);
+  const [floatBlur, setRodBlur] = useState(0);
   const [timeToEnd, setTimeToEnd] = useState(0);
 
   useEffect(() => {
     if (!runTime) return;
     const { x: newX, y: newY, angle: newAngle } = computeXYAngle(step, time);
-    const newBlur = computeBlur(newAngle - rodAngle);
+    const newBlur = computeBlur(newAngle - floatAngle);
 
     setRodX(newX);
     setRodY(newY);
     setRodAngle(newAngle);
     setRodBlur(newBlur);
-  }, [step, time, rodAngle, runTime]);
+  }, [step, time, floatAngle, runTime]);
 
   useEffect(() => {
-    setTimeToEnd(ROD_STATES[step].timeToAchieveMs - time);
+    setTimeToEnd(FLOAT_STATES[step].timeToAchieveMs - time);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [time]);
 
-  return { rodX, rodY, rodAngle, rodBlur, timeToEnd };
+  return { floatX, floatY, floatAngle, floatBlur, timeToEnd };
 };
