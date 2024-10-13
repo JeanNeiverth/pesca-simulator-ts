@@ -12,9 +12,11 @@ import { useFloatStatus } from "@/hooks/useFloatStatus";
 
 import { computeTopPosition } from "@/utils/computeTopPosition";
 
-interface ResolveStepsProps {}
-
-export const useResolveSteps = (props: ResolveStepsProps) => {
+export const useResolveSteps = ({
+  startMinigame,
+}: {
+  startMinigame: () => void;
+}) => {
   const [time, setTime] = useState(0);
   const [startTime, setStartTime] = useState(Date.now());
   const [runTime, setRunTime] = useState(false);
@@ -27,7 +29,7 @@ export const useResolveSteps = (props: ResolveStepsProps) => {
     runTime,
   });
 
-  const { floatX, floatY } = useFloatStatus({
+  const { floatX, floatY, croppedPct } = useFloatStatus({
     step,
     time,
     runTime,
@@ -42,20 +44,19 @@ export const useResolveSteps = (props: ResolveStepsProps) => {
   }, [startTime, runTime]);
 
   useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.key === "e" || event.key === "E") {
-        console.log("E key pressed!");
-        if (status === STATUS.THROWN_FLOAT) {
-          setStartTime(Date.now());
-          setTime(0);
-          setRunTime(true);
-        }
-      }
-    };
-    window.addEventListener("keydown", handleKeyPress);
-    return () => {
-      window.removeEventListener("keydown", handleKeyPress);
-    };
+    if (status === STATUS.SUNK_FLOAT) {
+      const timeoutId = setTimeout(() => {
+        console.log(
+          "Triggered 1 second after status change to STATUS.SUNK_FLOAT"
+        );
+        setStartTime(Date.now());
+        setTime(0);
+        setRunTime(true);
+      }, 1000); // 1 second delay
+
+      // Cleanup the timeout if the component unmounts or the status changes
+      return () => clearTimeout(timeoutId);
+    }
   }, [status]);
 
   function resolveSteps() {
@@ -63,7 +64,6 @@ export const useResolveSteps = (props: ResolveStepsProps) => {
       setRunTime(false);
       setStatus(STATUS.ARMED_ROD);
       setStep(STEPS.THROW_ROD_HALF);
-
       return;
     }
     if (timeToEnd < 0 && step === STEPS.THROW_ROD_HALF) {
@@ -82,7 +82,7 @@ export const useResolveSteps = (props: ResolveStepsProps) => {
     }
     if (timeToEnd < 0 && step === STEPS.THROW_FLOAT) {
       setRunTime(false);
-      setStatus(STATUS.THROWN_FLOAT);
+      setStatus(STATUS.SUNK_FLOAT);
       setStep(STEPS.FISH_PULL_HALF);
       return;
     }
@@ -95,13 +95,14 @@ export const useResolveSteps = (props: ResolveStepsProps) => {
     }
     if (timeToEnd < 0 && step === STEPS.FISH_PULL) {
       setRunTime(false);
-      setStatus(STATUS.FISH_PULLED);
-      setStep(STEPS.PULL_ROD_HALF);
+      setStatus(STATUS.INITIAL);
+      setStep(STEPS.ARM_ROD);
       return;
     }
     if (timeToEnd < 0 && step === STEPS.PULL_ROD_HALF) {
       setStartTime(Date.now());
       setTime(0);
+      startMinigame();
       setStatus(STATUS.PULLED_ROD_HALF);
       setStep(STEPS.PULL_ROD);
       return;
@@ -141,6 +142,14 @@ export const useResolveSteps = (props: ResolveStepsProps) => {
   }
 
   function handleMouseDown() {
+    // Hook fish
+    if (Object([STEPS.FISH_PULL_HALF, STEPS.FISH_PULL]).includes(step)) {
+      setStartTime(Date.now());
+      setTime(0);
+      setStatus(STATUS.FISH_PULLED);
+      setStep(STEPS.PULL_ROD_HALF);
+    }
+
     console.log("mousedown");
     setRunTime(true);
   }
@@ -159,8 +168,6 @@ export const useResolveSteps = (props: ResolveStepsProps) => {
     40,
     40
   );
-
-  const croppedPct = status > 3 ? 40 : 0;
 
   const fishingLineParams = {
     x1: xTopRod,

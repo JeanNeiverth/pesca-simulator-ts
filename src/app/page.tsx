@@ -1,7 +1,7 @@
 "use client";
 
 import { useWindowSize } from "@react-hook/window-size";
-import { Game } from "./game";
+import { Game } from "./Game";
 const WIDTH = 1920;
 const HEIGHT = 1080;
 

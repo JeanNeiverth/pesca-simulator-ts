@@ -2,8 +2,8 @@ import { ANIMATION } from "@/constants";
 import { useEffect, useState } from "react";
 import { PositionEncoder } from "./PositionEncoder";
 
-export type AnimationStatusType = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
-export type AnimationStepType = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+export type AnimationStatusType = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+export type AnimationStepType = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 
 export const STATUS = {
   INITIAL: 0,
@@ -11,10 +11,11 @@ export const STATUS = {
   THROWN_ROD_HALF: 2,
   THROWN_ROD: 3,
   THROWN_FLOAT: 4,
-  FISH_PULLED_HALF: 5,
-  FISH_PULLED: 6,
-  PULLED_ROD_HALF: 7,
-  PULLED_ROD: 8,
+  SUNK_FLOAT: 5,
+  FISH_PULLED_HALF: 6,
+  FISH_PULLED: 7,
+  PULLED_ROD_HALF: 8,
+  PULLED_ROD: 9,
 } as const;
 
 export const STEPS = {
@@ -22,10 +23,11 @@ export const STEPS = {
   THROW_ROD_HALF: 2,
   THROW_ROD: 3,
   THROW_FLOAT: 4,
-  FISH_PULL_HALF: 5,
-  FISH_PULL: 6,
-  PULL_ROD_HALF: 7,
-  PULL_ROD: 8,
+  SINK_FLOAT: 5,
+  FISH_PULL_HALF: 6,
+  FISH_PULL: 7,
+  PULL_ROD_HALF: 8,
+  PULL_ROD: 9,
 } as const;
 
 const ROD_STATES = [
@@ -65,18 +67,25 @@ const ROD_STATES = [
     timeToAchieveMs: 1000,
   },
   {
+    id: STATUS.SUNK_FLOAT,
+    x: 1400,
+    y: 300,
+    angle: -10,
+    timeToAchieveMs: 0,
+  },
+  {
     id: STATUS.FISH_PULLED_HALF,
     x: 1397,
     y: 300,
     angle: -10.1,
-    timeToAchieveMs: 300,
+    timeToAchieveMs: 400,
   },
   {
     id: STATUS.FISH_PULLED,
     x: 1400,
     y: 300,
     angle: -10,
-    timeToAchieveMs: 300,
+    timeToAchieveMs: 400,
   },
   {
     id: STATUS.PULLED_ROD_HALF,
