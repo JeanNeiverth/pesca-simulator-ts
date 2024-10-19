@@ -44,6 +44,7 @@ export const useMinigame = (props: MinigameProps): Minigame => {
     "sounds/pull-fish-2.mp3",
     {
       soundEnabled: isMouseDown,
+      playbackRate: 2,
       interrupt: true,
       volume: 0.1,
     }
