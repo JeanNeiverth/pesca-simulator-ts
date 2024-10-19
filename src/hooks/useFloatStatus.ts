@@ -133,10 +133,12 @@ function computeState(
 }
 
 export const useFloatStatus = ({
+  status,
   step,
   time,
   runTime,
 }: {
+  status: AnimationStatusType;
   step: AnimationStepType;
   time: number;
   runTime: boolean;
@@ -153,9 +155,9 @@ export const useFloatStatus = ({
 
   useEffect(() => {
     if (!runTime) {
-      setFloatX(FLOAT_STATES[step - 1].x);
-      setFloatY(FLOAT_STATES[step - 1].y);
-      setCroppedPct(FLOAT_STATES[step - 1].croppedPct);
+      setFloatX(FLOAT_STATES[status].x);
+      setFloatY(FLOAT_STATES[status].y);
+      setCroppedPct(FLOAT_STATES[status].croppedPct);
       return;
     }
     const {
@@ -167,7 +169,7 @@ export const useFloatStatus = ({
     setFloatX(newX);
     setFloatY(newY);
     setCroppedPct(newCroppedPct);
-  }, [step, time, runTime]);
+  }, [status, step, time, runTime]);
 
   useEffect(() => {
     setTimeToEnd(FLOAT_STATES[step].timeToAchieveMs - time);

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import rod from "../images/vara.png";
 import { ANIMATION } from "@/constants";
 import { STATUS, STEPS } from "@/hooks/useRodStatus";
+import useSound from "use-sound";
 
 import {
   AnimationStatusType,
@@ -30,9 +31,23 @@ export const useResolveSteps = ({
   });
 
   const { floatX, floatY, croppedPct } = useFloatStatus({
+    status,
     step,
     time,
     runTime,
+  });
+
+  const [playSoundThrowRod] = useSound("sounds/throw-rod.mp3", {
+    volume: 0.1,
+  });
+  const [playSoundHookFish] = useSound("sounds/hook-fish.mp3", {
+    volume: 0.1,
+  });
+  const [playSoundWaterSplash] = useSound("sounds/water-splash.mp3", {
+    volume: 0.1,
+  });
+  const [playSoundWaterDrop] = useSound("sounds/water-drop.mp3", {
+    volume: 0.1,
   });
 
   useEffect(() => {
@@ -46,9 +61,8 @@ export const useResolveSteps = ({
   useEffect(() => {
     if (status === STATUS.SUNK_FLOAT) {
       const timeoutId = setTimeout(() => {
-        console.log(
-          "Triggered 1 second after status change to STATUS.SUNK_FLOAT"
-        );
+        setStep(STEPS.FISH_PULL_HALF);
+        playSoundWaterSplash();
         setStartTime(Date.now());
         setTime(0);
         setRunTime(true);
@@ -57,7 +71,7 @@ export const useResolveSteps = ({
       // Cleanup the timeout if the component unmounts or the status changes
       return () => clearTimeout(timeoutId);
     }
-  }, [status]);
+  }, [status, playSoundWaterSplash]);
 
   function resolveSteps() {
     if (timeToEnd < 0 && step === STEPS.ARM_ROD) {
@@ -82,8 +96,8 @@ export const useResolveSteps = ({
     }
     if (timeToEnd < 0 && step === STEPS.THROW_FLOAT) {
       setRunTime(false);
+      playSoundWaterDrop();
       setStatus(STATUS.SUNK_FLOAT);
-      setStep(STEPS.FISH_PULL_HALF);
       return;
     }
     if (timeToEnd < 0 && step === STEPS.FISH_PULL_HALF) {
@@ -129,11 +143,13 @@ export const useResolveSteps = ({
 
   function handleMouseUp() {
     if (status === STATUS.ARMED_ROD) {
+      playSoundThrowRod();
       setRunTime(true);
     }
     if (step === STEPS.ARM_ROD) {
       setStartTime(Date.now());
       setTime(0);
+      playSoundThrowRod();
       setStatus(STATUS.ARMED_ROD);
       setStep(STEPS.THROW_ROD_HALF);
     }
@@ -143,15 +159,20 @@ export const useResolveSteps = ({
 
   function handleMouseDown() {
     // Hook fish
-    if (Object([STEPS.FISH_PULL_HALF, STEPS.FISH_PULL]).includes(step)) {
+    if (Object([STEPS.FISH_PULL, STEPS.FISH_PULL_HALF]).includes(step)) {
       setStartTime(Date.now());
       setTime(0);
+      playSoundHookFish();
       setStatus(STATUS.FISH_PULLED);
       setStep(STEPS.PULL_ROD_HALF);
+      setRunTime(true);
+    }
+
+    if (step === STEPS.ARM_ROD) {
+      setRunTime(true);
     }
 
     console.log("mousedown");
-    setRunTime(true);
   }
 
   const { xTop: xTopRod, yTop: yTopRod } = computeTopPosition(

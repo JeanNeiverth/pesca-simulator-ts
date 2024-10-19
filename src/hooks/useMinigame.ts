@@ -1,5 +1,6 @@
 import { ANIMATION } from "@/constants";
 import { useEffect, useState } from "react";
+import useSound from "use-sound";
 
 export interface MinigameProps {
   difficulty: number;
@@ -30,6 +31,23 @@ export const useMinigame = (props: MinigameProps): Minigame => {
   const [pointerAngle, setPointerAngle] = useState(0);
   const [finished, setFinished] = useState(false);
   const [success, setSuccess] = useState<boolean | undefined>(false);
+
+  const [playSoundPullFish, { stop: stopSoundPullFish }] = useSound(
+    "sounds/pull-fish.mp3",
+    {
+      soundEnabled: !isMouseDown,
+      interrupt: true,
+      volume: 0.1,
+    }
+  );
+  const [playSoundFishPull, { stop: stopSoundFishPull }] = useSound(
+    "sounds/pull-fish-2.mp3",
+    {
+      soundEnabled: isMouseDown,
+      interrupt: true,
+      volume: 0.1,
+    }
+  );
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -62,12 +80,17 @@ export const useMinigame = (props: MinigameProps): Minigame => {
     setInMinigame(false);
     setFinished(true);
     setSuccess(success);
+    stopSoundPullFish();
+    stopSoundFishPull();
     console.log("Stopped game:", success ? "success" : "failed");
   };
 
   // Update game state
   useEffect(() => {
     const difficultyCoef = Math.log10(difficulty);
+
+    playSoundPullFish();
+    playSoundFishPull();
 
     const deltaAngle = isMouseDown
       ? -0.4 * difficultyCoef +

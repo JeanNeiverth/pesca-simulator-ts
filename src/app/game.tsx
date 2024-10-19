@@ -8,7 +8,7 @@ import { useMinigame } from "@/hooks/useMinigame";
 import { MinigameDisplayer } from "./MinigameDisplayer";
 
 const difficulty = 0.1;
-const timeToFinish = 5000;
+const timeToFinish = 3000;
 
 export function Game() {
   const {
