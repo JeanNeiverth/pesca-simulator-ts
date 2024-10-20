@@ -14,6 +14,7 @@ interface Minigame {
     pointerAngle: number;
     success: boolean | undefined;
     finished: boolean;
+    refreshSuccess: () => void;
   };
   handleMouseUp: () => void;
   handleMouseDown: () => void;
@@ -86,6 +87,10 @@ export const useMinigame = (props: MinigameProps): Minigame => {
     console.log("Stopped game:", success ? "success" : "failed");
   };
 
+  const refreshSuccess = () => {
+    setSuccess(undefined);
+  };
+
   // Update game state
   useEffect(() => {
     const difficultyCoef = Math.log10(difficulty);
@@ -124,7 +129,14 @@ export const useMinigame = (props: MinigameProps): Minigame => {
   }
 
   return {
-    minigame: { inMinigame, start, pointerAngle, success, finished },
+    minigame: {
+      inMinigame,
+      start,
+      pointerAngle,
+      success,
+      finished,
+      refreshSuccess,
+    },
     handleMouseUp,
     handleMouseDown,
   };

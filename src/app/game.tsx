@@ -6,6 +6,7 @@ import { Rod } from "@/components/Rod";
 import { Float } from "@/components/Float";
 import { useMinigame } from "@/hooks/useMinigame";
 import { MinigameDisplayer } from "./MinigameDisplayer";
+import { FishedFrame } from "@/components/FishedFrame";
 
 const difficulty = 0.1;
 const timeToFinish = 3000;
@@ -17,7 +18,13 @@ export function Game() {
     handleMouseDown: minigameMouseDown,
   } = useMinigame({ difficulty, timeToFinish });
 
-  const { inMinigame, start: startMinigame, pointerAngle } = minigame;
+  const {
+    inMinigame,
+    start: startMinigame,
+    pointerAngle,
+    success,
+    refreshSuccess,
+  } = minigame;
 
   const {
     handleMouseUp,
@@ -46,6 +53,7 @@ export function Game() {
           minigameMouseUp={minigameMouseUp}
         />
       )}
+      {success && <FishedFrame refreshSuccess={refreshSuccess} />}
     </>
   );
 }
