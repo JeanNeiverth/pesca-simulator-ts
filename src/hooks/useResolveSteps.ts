@@ -4,26 +4,30 @@ import { ANIMATION } from "@/constants";
 import { STATUS, STEPS } from "@/hooks/useRodStatus";
 import useSound from "use-sound";
 
-import {
-  AnimationStatusType,
-  AnimationStepType,
-  useRodStatus,
-} from "@/hooks/useRodStatus";
+import { useRodStatus } from "@/hooks/useRodStatus";
 import { useFloatStatus } from "@/hooks/useFloatStatus";
 
 import { computeTopPosition } from "@/utils/computeTopPosition";
+import { useGlobalVariables } from "@/context/GlobalVariables";
 
 export const useResolveSteps = ({
   startMinigame,
 }: {
   startMinigame: () => void;
 }) => {
-  const [time, setTime] = useState(0);
-  const [startTime, setStartTime] = useState(Date.now());
-  const [runTime, setRunTime] = useState(false);
+  const {
+    time,
+    startTime,
+    runTime,
+    status,
+    step,
+    setTime,
+    setStartTime,
+    setRunTime,
+    setStatus,
+    setStep,
+  } = useGlobalVariables();
 
-  const [status, setStatus] = useState<AnimationStatusType>(STATUS.INITIAL);
-  const [step, setStep] = useState<AnimationStepType>(STEPS.ARM_ROD);
   const { rodX, rodY, rodAngle, rodBlur, timeToEnd } = useRodStatus({
     step,
     time,
@@ -212,10 +216,6 @@ export const useResolveSteps = ({
   };
 
   return {
-    step,
-    status,
-    runTime,
-    time,
     handleMouseUp,
     handleMouseDown,
     fishingLineParams,

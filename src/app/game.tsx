@@ -10,11 +10,14 @@ import { FishedFrame } from "@/components/FishedFrame";
 import { STATUS, STEPS } from "@/hooks/useRodStatus";
 import throwingBarImage from "@/images/throwing-bar.png";
 import { useThrowingDistance } from "@/hooks/useThrowingDistance";
+import { useGlobalVariables } from "@/context/GlobalVariables";
 
 const difficulty = 0.1;
 const timeToFinish = 3000;
 
 export function Game() {
+  const { step, status, runTime } = useGlobalVariables();
+
   const {
     minigame,
     handleMouseUp: minigameMouseUp,
@@ -30,10 +33,6 @@ export function Game() {
   } = minigame;
 
   const {
-    step,
-    status,
-    runTime,
-    time,
     handleMouseUp,
     handleMouseDown,
     fishingLineParams,
@@ -41,11 +40,7 @@ export function Game() {
     floatParams,
   } = useResolveSteps({ startMinigame });
 
-  const isSettingDistance =
-    (step === STEPS.ARM_ROD && runTime) ||
-    (status == STATUS.ARMED_ROD && !runTime);
-
-  const { d } = useThrowingDistance({ isSettingDistance });
+  const { d } = useThrowingDistance();
 
   return (
     <>

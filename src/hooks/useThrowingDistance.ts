@@ -1,15 +1,19 @@
 import { useEffect, useState } from "react";
 import { ANIMATION } from "@/constants";
+import { STATUS, STEPS } from "./useRodStatus";
+import { useGlobalVariables } from "@/context/GlobalVariables";
 
-export const useThrowingDistance = ({
-  isSettingDistance,
-}: {
-  isSettingDistance: boolean;
-}): { d: number | undefined } => {
+export const useThrowingDistance = (): { d: number | undefined } => {
   const [d, setD] = useState<number | undefined>(undefined);
   const [time, setTime] = useState(0);
   const [startTime, setStartTime] = useState(Date.now());
   const [runTime, setRunTime] = useState(false);
+
+  const { status, step, runTime: globalRunTime } = useGlobalVariables();
+
+  const isSettingDistance =
+    (step === STEPS.ARM_ROD && globalRunTime) ||
+    (status == STATUS.ARMED_ROD && !globalRunTime);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -33,7 +37,7 @@ export const useThrowingDistance = ({
   useEffect(() => {
     if (isSettingDistance) {
       console.log("setting distance");
-      setD(1 - Math.abs(Math.cos(0.001 * time)));
+      setD(1 - Math.abs(Math.cos(0.001 * time)) ** 0.9);
     }
   }, [isSettingDistance, time]);
 
