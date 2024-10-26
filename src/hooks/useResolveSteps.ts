@@ -37,16 +37,16 @@ export const useResolveSteps = ({
     runTime,
   });
 
-  const [playSoundThrowRod] = useSound("sounds/throw-rod.mp3", {
+  const [playSoundThrowRod] = useSound("/sounds/throw-rod.mp3", {
     volume: 0.1,
   });
-  const [playSoundHookFish] = useSound("sounds/hook-fish.mp3", {
+  const [playSoundHookFish] = useSound("/sounds/hook-fish.mp3", {
     volume: 0.1,
   });
-  const [playSoundWaterSplash] = useSound("sounds/water-splash.mp3", {
+  const [playSoundWaterSplash] = useSound("/sounds/water-splash.mp3", {
     volume: 0.1,
   });
-  const [playSoundWaterDrop] = useSound("sounds/water-drop.mp3", {
+  const [playSoundWaterDrop] = useSound("/sounds/water-drop.mp3", {
     volume: 0.1,
   });
 

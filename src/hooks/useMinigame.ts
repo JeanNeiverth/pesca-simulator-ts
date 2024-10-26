@@ -34,7 +34,7 @@ export const useMinigame = (props: MinigameProps): Minigame => {
   const [success, setSuccess] = useState<boolean | undefined>(false);
 
   const [playSoundPullFish, { stop: stopSoundPullFish }] = useSound(
-    "sounds/pull-fish.mp3",
+    "/sounds/pull-fish.mp3",
     {
       soundEnabled: !isMouseDown,
       interrupt: true,
@@ -42,7 +42,7 @@ export const useMinigame = (props: MinigameProps): Minigame => {
     }
   );
   const [playSoundFishPull, { stop: stopSoundFishPull }] = useSound(
-    "sounds/pull-fish-2.mp3",
+    "/sounds/pull-fish-2.mp3",
     {
       soundEnabled: isMouseDown,
       playbackRate: 2,
