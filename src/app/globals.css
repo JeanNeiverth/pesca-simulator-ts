@@ -4,6 +4,9 @@
 
 :root {
   --background-rgb: 220, 220, 220;
+  --primary: #59ff00;
+  --accent: #f0f000;
+  --border: #101000;
 }
 
 body {

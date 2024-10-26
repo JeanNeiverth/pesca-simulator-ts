@@ -10,7 +10,7 @@ export const Button = ({ className, ...props }: ButtonProps) => {
     <button
       type="button"
       className={clsx(
-        "flex items-center justify-center text-lg bg-yellow-500 border-2 border-black p-3 rounded-full hover:bg-yellow-400",
+        "flex items-center justify-center text-lg bg-primary border-2 border-black p-3 rounded-full hover:bg-accent",
         className
       )}
       {...props}
