@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { WindowScaler } from "@/components/WindowScaler";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -18,7 +20,9 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.png" type="image/png" />
       </head>
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <WindowScaler>{children}</WindowScaler>
+      </body>
     </html>
   );
 }
