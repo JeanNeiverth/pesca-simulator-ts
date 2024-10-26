@@ -212,6 +212,10 @@ export const useResolveSteps = ({
   };
 
   return {
+    step,
+    status,
+    runTime,
+    time,
     handleMouseUp,
     handleMouseDown,
     fishingLineParams,
