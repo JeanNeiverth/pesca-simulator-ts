@@ -1,6 +1,9 @@
 import corvinaImg from "@/images/corvina.png";
 import lambariImg from "@/images/lambari.png";
 import bagreImg from "@/images/bagre.png";
+import lambariBaitImg from "@/images/baits/Lambari.png";
+import wormBaitImg from "@/images/baits/Minhoca.png";
+import portionBaitImg from "@/images/baits/Ração.png";
 import { FishKind, Location as MapLocation } from "./types";
 
 export enum FishId {
@@ -35,14 +38,28 @@ export const FISHES: Record<FishId, FishKind> = {
 
 export enum BaitId {
   LAMBARI = "1",
+  MINHOCA = "2",
+  RACAO = "3",
 }
 
 export const BAITS = {
   [BaitId.LAMBARI]: {
-    id: [BaitId.LAMBARI],
+    id: BaitId.LAMBARI,
     name: "Lambari",
     price: 1,
-    src: lambariImg,
+    src: lambariBaitImg,
+  },
+  [BaitId.MINHOCA]: {
+    id: BaitId.MINHOCA,
+    name: "Minhoca",
+    price: 0,
+    src: wormBaitImg,
+  },
+  [BaitId.RACAO]: {
+    id: BaitId.RACAO,
+    name: "Ração",
+    price: 0.05,
+    src: portionBaitImg,
   },
 } as const;
 

@@ -11,6 +11,7 @@ import { STATUS, STEPS } from "@/hooks/useRodStatus";
 import { useThrowingDistance } from "@/hooks/useThrowingDistance";
 import { useGlobalVariables } from "@/context/GlobalVariables";
 import { ThrowingBar } from "@/components/ThrowingBar";
+import { BaitSelector } from "@/components/BaitSelector";
 
 const difficulty = 0.1;
 const timeToFinish = 3000;
@@ -51,6 +52,7 @@ export function Game() {
         onClick={handleMouseUp}
         onMouseDown={handleMouseDown}
       />
+      <BaitSelector />
       <FishingLine params={fishingLineParams} />
       <Rod params={rodParams} />
       <Float params={floatParams} />

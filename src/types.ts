@@ -25,6 +25,15 @@ export interface Bait {
   price: number;
 }
 
+export interface BaitWithAmount extends Bait {
+  amount: number;
+}
+
+export type UserBaits = Record<
+  0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9,
+  BaitWithAmount | undefined
+>;
+
 export interface BaitMap {
   id: BaitId;
   eatingCoef: number;
