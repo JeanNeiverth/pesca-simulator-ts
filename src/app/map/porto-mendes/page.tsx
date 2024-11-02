@@ -10,8 +10,8 @@ const locations = {
   "1": {
     id: "1",
     name: "Trapiche",
-    x: 600,
-    y: 800,
+    x: 255,
+    y: 570,
     src: "porto-mendes/trapiche",
   },
 } as const;

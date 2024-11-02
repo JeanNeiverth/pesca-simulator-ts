@@ -9,11 +9,18 @@ import { useFloatStatus } from "@/hooks/useFloatStatus";
 
 import { computeTopPosition } from "@/utils/computeTopPosition";
 import { useGlobalVariables } from "@/context/GlobalVariables";
+import type {
+  GenerateFishReturn,
+  GetProbabilitiesArgs,
+} from "@/utils/fishingPoint";
+import { MinigameProps } from "./useMinigame";
 
 export const useResolveSteps = ({
   startMinigame,
+  generateFish,
 }: {
   startMinigame: () => void;
+  generateFish: (args?: GetProbabilitiesArgs) => GenerateFishReturn;
 }) => {
   const {
     time,
@@ -21,11 +28,15 @@ export const useResolveSteps = ({
     runTime,
     status,
     step,
+    waitingTime,
     setTime,
     setStartTime,
     setRunTime,
     setStatus,
     setStep,
+    setFish,
+    setMinigameInput,
+    setWaitingTime,
   } = useGlobalVariables();
 
   const { rodX, rodY, rodAngle, rodBlur, timeToEnd } = useRodStatus({
@@ -60,6 +71,7 @@ export const useResolveSteps = ({
       setTime(Date.now() - startTime);
     }, ANIMATION.UPDATE_TIME_MS);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startTime, runTime]);
 
   useEffect(() => {
@@ -70,12 +82,13 @@ export const useResolveSteps = ({
         setStartTime(Date.now());
         setTime(0);
         setRunTime(true);
-      }, 1000); // 1 second delay
+      }, waitingTime);
 
       // Cleanup the timeout if the component unmounts or the status changes
       return () => clearTimeout(timeoutId);
     }
-  }, [status, playSoundWaterSplash]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, playSoundWaterSplash, waitingTime]);
 
   function resolveSteps() {
     if (timeToEnd < 0 && step === STEPS.ARM_ROD) {
@@ -138,6 +151,7 @@ export const useResolveSteps = ({
       setStartTime(Date.now());
       setTime(0);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [runTime]);
 
   useEffect(() => {
@@ -174,6 +188,11 @@ export const useResolveSteps = ({
 
     if (step === STEPS.ARM_ROD) {
       setRunTime(true);
+
+      const { fishToGet, minigameInput, waitingTime } = generateFish();
+      setFish(fishToGet);
+      setMinigameInput(minigameInput);
+      setWaitingTime(waitingTime);
     }
 
     console.log("mousedown");

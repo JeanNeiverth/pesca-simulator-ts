@@ -1,4 +1,5 @@
 import { ANIMATION } from "@/constants";
+import { useGlobalVariables } from "@/context/GlobalVariables";
 import { useEffect, useState } from "react";
 import useSound from "use-sound";
 
@@ -20,9 +21,7 @@ interface Minigame {
   handleMouseDown: () => void;
 }
 
-export const useMinigame = (props: MinigameProps): Minigame => {
-  const { difficulty, timeToFinish } = props;
-
+export const useMinigame = (): Minigame => {
   const [time, setTime] = useState(0);
   const [startTime, setStartTime] = useState(Date.now());
   const [runTime, setRunTime] = useState(false);
@@ -32,6 +31,10 @@ export const useMinigame = (props: MinigameProps): Minigame => {
   const [pointerAngle, setPointerAngle] = useState(0);
   const [finished, setFinished] = useState(false);
   const [success, setSuccess] = useState<boolean | undefined>(false);
+
+  const {
+    minigameInput: { difficulty, timeToFinish },
+  } = useGlobalVariables();
 
   const [playSoundPullFish, { stop: stopSoundPullFish }] = useSound(
     "/sounds/pull-fish.mp3",

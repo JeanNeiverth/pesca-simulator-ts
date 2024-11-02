@@ -1,5 +1,4 @@
 import Image from "next/image";
-import backgroundImage from "../images/Porto Mendes - Trapiche3.png";
 import { useResolveSteps } from "@/hooks/useResolveSteps";
 import { FishingLine } from "@/components/FishingLine";
 import { Rod } from "@/components/Rod";
@@ -12,18 +11,16 @@ import { useThrowingDistance } from "@/hooks/useThrowingDistance";
 import { useGlobalVariables } from "@/context/GlobalVariables";
 import { ThrowingBar } from "@/components/ThrowingBar";
 import { BaitSelector } from "@/components/BaitSelector";
+import type { FishingPoint } from "@/utils/fishingPoint";
 
-const difficulty = 0.1;
-const timeToFinish = 3000;
-
-export function Game() {
+export function Game({ fishingPoint }: { fishingPoint: FishingPoint }) {
   const { step, status, runTime } = useGlobalVariables();
 
   const {
     minigame,
     handleMouseUp: minigameMouseUp,
     handleMouseDown: minigameMouseDown,
-  } = useMinigame({ difficulty, timeToFinish });
+  } = useMinigame();
 
   const {
     inMinigame,
@@ -39,14 +36,19 @@ export function Game() {
     fishingLineParams,
     rodParams,
     floatParams,
-  } = useResolveSteps({ startMinigame });
+  } = useResolveSteps({
+    startMinigame,
+    generateFish: () => {
+      return fishingPoint.generateFish();
+    },
+  });
 
   const { d } = useThrowingDistance();
 
   return (
     <>
       <Image
-        src={backgroundImage}
+        src={fishingPoint.imageSrc}
         alt=""
         style={{ objectFit: "contain" }}
         onClick={handleMouseUp}

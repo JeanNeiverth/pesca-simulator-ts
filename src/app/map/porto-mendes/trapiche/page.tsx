@@ -1,7 +1,6 @@
-"use client"
-
+"use client";
 import { Game } from "@/app/Game";
-
+import { portoMendesTrapiche } from "./point";
 export default function Page() {
-  return <Game/>
+  return <Game fishingPoint={portoMendesTrapiche} />;
 }

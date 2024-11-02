@@ -36,7 +36,6 @@ export const useThrowingDistance = (): { d: number | undefined } => {
 
   useEffect(() => {
     if (isSettingDistance) {
-      console.log("setting distance");
       setD(1 - Math.abs(Math.cos(0.001 * time)) ** 0.9);
     }
   }, [isSettingDistance, time]);

@@ -1,13 +1,14 @@
 "use client";
 
 import { BaitId, BAITS } from "@/fishes";
+import { MinigameProps } from "@/hooks/useMinigame";
 import {
   AnimationStatusType,
   AnimationStepType,
   STATUS,
   STEPS,
 } from "@/hooks/useRodStatus";
-import { BaitWithAmount, UserBaits } from "@/types";
+import { BaitWithAmount, Fish, UserBaits } from "@/types";
 import {
   type PropsWithChildren,
   createContext,
@@ -25,6 +26,9 @@ interface GlobalVariablesType {
   step: AnimationStepType;
   selectedBait: BaitWithAmount | undefined;
   userBaits: UserBaits;
+  fish: Fish | undefined;
+  minigameInput: MinigameProps;
+  waitingTime: number;
   setTime: Dispatch<SetStateAction<number>>;
   setStartTime: Dispatch<SetStateAction<number>>;
   setRunTime: Dispatch<SetStateAction<boolean>>;
@@ -32,6 +36,9 @@ interface GlobalVariablesType {
   setStep: Dispatch<SetStateAction<AnimationStepType>>;
   setSelectedBait: Dispatch<SetStateAction<BaitWithAmount | undefined>>;
   setUserBaits: Dispatch<SetStateAction<UserBaits>>;
+  setFish: Dispatch<SetStateAction<Fish | undefined>>;
+  setMinigameInput: Dispatch<SetStateAction<MinigameProps>>;
+  setWaitingTime: Dispatch<SetStateAction<number>>;
 }
 
 export const GlobalVariablesContext = createContext({} as GlobalVariablesType);
@@ -61,6 +68,12 @@ export function GlobalVariablesContextProvider({
     undefined
   );
   const [userBaits, setUserBaits] = useState<UserBaits>(initialUserBaits);
+  const [fish, setFish] = useState<Fish | undefined>(undefined);
+  const [minigameInput, setMinigameInput] = useState<MinigameProps>({
+    difficulty: 1,
+    timeToFinish: 3000,
+  });
+  const [waitingTime, setWaitingTime] = useState<number>(0);
 
   return (
     <GlobalVariablesContext.Provider
@@ -72,6 +85,9 @@ export function GlobalVariablesContextProvider({
         step,
         selectedBait,
         userBaits,
+        fish,
+        minigameInput,
+        waitingTime,
         setTime,
         setStartTime,
         setRunTime,
@@ -79,6 +95,9 @@ export function GlobalVariablesContextProvider({
         setStep,
         setSelectedBait,
         setUserBaits,
+        setFish,
+        setMinigameInput,
+        setWaitingTime,
       }}
     >
       {children}
