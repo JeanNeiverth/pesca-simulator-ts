@@ -25,11 +25,9 @@ export const useThrowingDistance = (): { d: number | undefined } => {
 
   useEffect(() => {
     if (isSettingDistance) {
-      console.log("setting runtime to true");
       setStartTime(Date.now());
       setRunTime(true);
     } else {
-      console.log("setting runtime to false");
       setRunTime(false);
     }
   }, [isSettingDistance]);

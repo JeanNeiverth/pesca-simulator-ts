@@ -12,6 +12,7 @@ import { useGlobalVariables } from "@/context/GlobalVariables";
 import { ThrowingBar } from "@/components/ThrowingBar";
 import { BaitSelector } from "@/components/BaitSelector";
 import type { FishingPoint } from "@/utils/fishingPoint";
+import { useBaits } from "@/context/Baits";
 
 export function Game({ fishingPoint }: { fishingPoint: FishingPoint }) {
   const { step, status, runTime } = useGlobalVariables();
@@ -30,6 +31,10 @@ export function Game({ fishingPoint }: { fishingPoint: FishingPoint }) {
     refreshSuccess,
   } = minigame;
 
+  const { d } = useThrowingDistance();
+
+  const { selectedBait } = useBaits();
+
   const {
     handleMouseUp,
     handleMouseDown,
@@ -39,11 +44,11 @@ export function Game({ fishingPoint }: { fishingPoint: FishingPoint }) {
   } = useResolveSteps({
     startMinigame,
     generateFish: () => {
-      return fishingPoint.generateFish();
+      if (!d)
+        throw new Error("Error: there's no distance to use in generateFish");
+      return fishingPoint.generateFish({ d, bait: selectedBait });
     },
   });
-
-  const { d } = useThrowingDistance();
 
   return (
     <>

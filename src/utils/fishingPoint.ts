@@ -13,8 +13,8 @@ export interface GetProbabilitiesReturn {
 }
 
 export interface GetProbabilitiesArgs {
-  d?: number;
-  bait?: Bait;
+  d: number;
+  bait: Bait | undefined;
 }
 
 export interface GenerateFishReturn {
@@ -23,23 +23,23 @@ export interface GenerateFishReturn {
   minigameInput: MinigameProps;
 }
 
+export type GetProbabilitiesFn = (
+  args: GetProbabilitiesArgs
+) => GetProbabilitiesReturn;
+
 export class FishingPoint {
   constructor(
     public location: Location,
     public imageSrc: StaticImageData,
-    public getProbabilities: (
-      args?: GetProbabilitiesArgs
-    ) => GetProbabilitiesReturn,
+    public getProbabilities: GetProbabilitiesFn,
     public minigameInputMap: Record<
       Partial<FishId>,
       (fish: Fish) => { difficulty: number; timeToFinish: number }
     >
   ) {}
 
-  generateFish(args?: GetProbabilitiesArgs): GenerateFishReturn {
-    const probabilities = args
-      ? this.getProbabilities(args)
-      : this.getProbabilities();
+  generateFish(args: GetProbabilitiesArgs): GenerateFishReturn {
+    const probabilities = this.getProbabilities(args);
 
     const { biteProbability1sec, fishChances, fishWeights } = probabilities;
 
@@ -61,12 +61,6 @@ export class FishingPoint {
     console.log("computed fish");
     console.log("waitingTime:", waitingTime);
     console.log("fishToGet:", fish.name);
-    console.log(
-      "minigameInput:",
-      minigameInput.difficulty,
-      " | ",
-      minigameInput.timeToFinish
-    );
 
     return {
       waitingTime,

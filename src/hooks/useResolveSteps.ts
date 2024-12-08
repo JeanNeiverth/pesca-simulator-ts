@@ -9,10 +9,7 @@ import { useFloatStatus } from "@/hooks/useFloatStatus";
 
 import { computeTopPosition } from "@/utils/computeTopPosition";
 import { useGlobalVariables } from "@/context/GlobalVariables";
-import type {
-  GenerateFishReturn,
-  GetProbabilitiesArgs,
-} from "@/utils/fishingPoint";
+import type { GenerateFishReturn } from "@/utils/fishingPoint";
 import { useBaits } from "@/context/Baits";
 
 export const useResolveSteps = ({
@@ -20,7 +17,7 @@ export const useResolveSteps = ({
   generateFish,
 }: {
   startMinigame: () => void;
-  generateFish: (args?: GetProbabilitiesArgs) => GenerateFishReturn;
+  generateFish: () => GenerateFishReturn;
 }) => {
   const {
     time,
@@ -84,7 +81,7 @@ export const useResolveSteps = ({
         setStartTime(Date.now());
         setTime(0);
         setRunTime(true);
-        addBait(selectedBait?.id,-1);
+        addBait(selectedBait?.id, -1);
       }, waitingTime);
 
       // Cleanup the timeout if the component unmounts or the status changes
@@ -105,6 +102,10 @@ export const useResolveSteps = ({
       setTime(0);
       setStatus(STATUS.THROWN_ROD_HALF);
       setStep(STEPS.THROW_ROD);
+      const { fishToGet, minigameInput, waitingTime } = generateFish();
+      setFish(fishToGet);
+      setMinigameInput(minigameInput);
+      setWaitingTime(waitingTime);
       return;
     }
     if (timeToEnd < 0 && step === STEPS.THROW_ROD) {
@@ -174,13 +175,12 @@ export const useResolveSteps = ({
       setStep(STEPS.THROW_ROD_HALF);
     }
 
-    console.log("mouseup");
+    // console.log("mouseup");
   }
 
   function handleMouseDown() {
     // Hook fish
     if (Object([STEPS.FISH_PULL, STEPS.FISH_PULL_HALF]).includes(step)) {
-      console.log("here");
       setStartTime(Date.now());
       setTime(0);
       playSoundHookFish();
@@ -194,7 +194,6 @@ export const useResolveSteps = ({
     }
     //Hook fish before right time
     if (status === STATUS.SUNK_FLOAT) {
-      console.log("here");
       setStartTime(Date.now());
       setTime(0);
       playSoundHookFish();
@@ -205,14 +204,9 @@ export const useResolveSteps = ({
 
     if (step === STEPS.ARM_ROD) {
       setRunTime(true);
-
-      const { fishToGet, minigameInput, waitingTime } = generateFish();
-      setFish(fishToGet);
-      setMinigameInput(minigameInput);
-      setWaitingTime(waitingTime);
     }
 
-    console.log("mousedown");
+    // console.log("mousedown");
   }
 
   const { xTop: xTopRod, yTop: yTopRod } = computeTopPosition(
