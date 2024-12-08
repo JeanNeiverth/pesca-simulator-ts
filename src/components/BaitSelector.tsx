@@ -2,6 +2,8 @@ import { BaitWithAmount } from "@/types";
 import Image from "next/image";
 import clsx from "clsx";
 import { BaitIndex, useBaits } from "@/context/Baits";
+import { STATUS } from "@/hooks/useRodStatus";
+import { useGlobalVariables } from "@/context/GlobalVariables";
 
 export const BaitSelector = () => {
   const { baits, selectedBait } = useBaits();
@@ -28,6 +30,7 @@ const BaitContainer = ({
   baitKey: number;
 }) => {
   const { selectBaitByKey, selectedBaitKey } = useBaits();
+  const { status } = useGlobalVariables();
 
   return (
     <div
@@ -35,7 +38,9 @@ const BaitContainer = ({
         "relative h-[72px] w-[72px] bg-[#969600] border border-border rounded-md hover:bg-accent cursor-pointer",
         { "bg-accent": selectedBaitKey === baitKey }
       )}
-      onClick={() => selectBaitByKey(baitKey as BaitIndex)}
+      onClick={() => {
+        if (status === STATUS.INITIAL) selectBaitByKey(baitKey as BaitIndex);
+      }}
     >
       {bait && (
         <Image

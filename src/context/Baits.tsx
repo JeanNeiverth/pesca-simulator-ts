@@ -58,7 +58,7 @@ export const BaitsProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   const addBait = (baitId: BaitId | undefined, amount: number) => {
-    if (!baitId) return
+    if (!baitId) return;
     if (!Number.isInteger(amount))
       throw new Error("Unexpected Error: bait amount must be an integer!");
 
@@ -85,6 +85,7 @@ export const BaitsProvider: React.FC<{ children: ReactNode }> = ({
           newAmount === 0 ? undefined : { ...baits[key]!, amount: newAmount };
         return newBaits;
       });
+      if (newAmount === 0) setSelectedBait(undefined);
     }
   };
 
