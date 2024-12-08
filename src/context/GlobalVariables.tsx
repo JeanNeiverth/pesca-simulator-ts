@@ -1,6 +1,5 @@
 "use client";
 
-import { BaitId, BAITS } from "@/fishes";
 import { MinigameProps } from "@/hooks/useMinigame";
 import {
   AnimationStatusType,
@@ -8,7 +7,7 @@ import {
   STATUS,
   STEPS,
 } from "@/hooks/useRodStatus";
-import { BaitWithAmount, Fish, UserBaits } from "@/types";
+import { Fish } from "@/types";
 import {
   type PropsWithChildren,
   createContext,
@@ -24,8 +23,6 @@ interface GlobalVariablesType {
   runTime: boolean;
   status: AnimationStatusType;
   step: AnimationStepType;
-  selectedBait: BaitWithAmount | undefined;
-  userBaits: UserBaits;
   fish: Fish | undefined;
   minigameInput: MinigameProps;
   waitingTime: number;
@@ -34,27 +31,12 @@ interface GlobalVariablesType {
   setRunTime: Dispatch<SetStateAction<boolean>>;
   setStatus: Dispatch<SetStateAction<AnimationStatusType>>;
   setStep: Dispatch<SetStateAction<AnimationStepType>>;
-  setSelectedBait: Dispatch<SetStateAction<BaitWithAmount | undefined>>;
-  setUserBaits: Dispatch<SetStateAction<UserBaits>>;
   setFish: Dispatch<SetStateAction<Fish | undefined>>;
   setMinigameInput: Dispatch<SetStateAction<MinigameProps>>;
   setWaitingTime: Dispatch<SetStateAction<number>>;
 }
 
 export const GlobalVariablesContext = createContext({} as GlobalVariablesType);
-
-const initialUserBaits: UserBaits = {
-  0: { ...BAITS[BaitId.MINHOCA], amount: 15 },
-  1: { ...BAITS[BaitId.LAMBARI], amount: 5 },
-  2: { ...BAITS[BaitId.RACAO], amount: 10 },
-  3: undefined,
-  4: undefined,
-  5: undefined,
-  6: undefined,
-  7: undefined,
-  8: undefined,
-  9: undefined,
-};
 
 export function GlobalVariablesContextProvider({
   children,
@@ -64,10 +46,6 @@ export function GlobalVariablesContextProvider({
   const [runTime, setRunTime] = useState(false);
   const [status, setStatus] = useState<AnimationStatusType>(STATUS.INITIAL);
   const [step, setStep] = useState<AnimationStepType>(STEPS.ARM_ROD);
-  const [selectedBait, setSelectedBait] = useState<BaitWithAmount | undefined>(
-    undefined
-  );
-  const [userBaits, setUserBaits] = useState<UserBaits>(initialUserBaits);
   const [fish, setFish] = useState<Fish | undefined>(undefined);
   const [minigameInput, setMinigameInput] = useState<MinigameProps>({
     difficulty: 1,
@@ -83,8 +61,6 @@ export function GlobalVariablesContextProvider({
         runTime,
         status,
         step,
-        selectedBait,
-        userBaits,
         fish,
         minigameInput,
         waitingTime,
@@ -93,8 +69,6 @@ export function GlobalVariablesContextProvider({
         setRunTime,
         setStatus,
         setStep,
-        setSelectedBait,
-        setUserBaits,
         setFish,
         setMinigameInput,
         setWaitingTime,

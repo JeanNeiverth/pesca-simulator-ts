@@ -1,13 +1,10 @@
-import { Bait, BaitWithAmount, UserBaits } from "@/types";
+import { BaitWithAmount } from "@/types";
 import Image from "next/image";
-import { BaitId, BAITS } from "@/fishes";
-import { useGlobalVariables } from "@/context/GlobalVariables";
 import clsx from "clsx";
+import { BaitIndex, useBaits } from "@/context/Baits";
 
 export const BaitSelector = () => {
-  const { selectedBait, setSelectedBait, userBaits, setUserBaits } =
-    useGlobalVariables();
-  const baits = Object.values(userBaits);
+  const { baits, selectedBait } = useBaits();
 
   return (
     <div className="flex flex-col absolute left-[555px] top-[964px]">
@@ -30,15 +27,15 @@ const BaitContainer = ({
   bait?: BaitWithAmount;
   baitKey: number;
 }) => {
-  const { selectedBait, setSelectedBait } = useGlobalVariables();
+  const { selectBaitByKey, selectedBaitKey } = useBaits();
 
   return (
     <div
       className={clsx(
         "relative h-[72px] w-[72px] bg-[#969600] border border-border rounded-md hover:bg-accent cursor-pointer",
-        { "bg-accent": selectedBait && bait && selectedBait?.id === bait?.id }
+        { "bg-accent": selectedBaitKey === baitKey }
       )}
-      onClick={() => setSelectedBait(bait)}
+      onClick={() => selectBaitByKey(baitKey as BaitIndex)}
     >
       {bait && (
         <Image

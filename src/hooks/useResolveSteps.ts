@@ -13,7 +13,7 @@ import type {
   GenerateFishReturn,
   GetProbabilitiesArgs,
 } from "@/utils/fishingPoint";
-import { MinigameProps } from "./useMinigame";
+import { useBaits } from "@/context/Baits";
 
 export const useResolveSteps = ({
   startMinigame,
@@ -38,6 +38,8 @@ export const useResolveSteps = ({
     setMinigameInput,
     setWaitingTime,
   } = useGlobalVariables();
+
+  const { addBait, selectedBait } = useBaits();
 
   const { rodX, rodY, rodAngle, rodBlur, timeToEnd } = useRodStatus({
     step,
@@ -82,6 +84,7 @@ export const useResolveSteps = ({
         setStartTime(Date.now());
         setTime(0);
         setRunTime(true);
+        addBait(selectedBait?.id,-1);
       }, waitingTime);
 
       // Cleanup the timeout if the component unmounts or the status changes
@@ -133,7 +136,6 @@ export const useResolveSteps = ({
     if (timeToEnd < 0 && step === STEPS.PULL_ROD_HALF) {
       setStartTime(Date.now());
       setTime(0);
-      startMinigame();
       setStatus(STATUS.PULLED_ROD_HALF);
       setStep(STEPS.PULL_ROD);
       return;
@@ -178,6 +180,21 @@ export const useResolveSteps = ({
   function handleMouseDown() {
     // Hook fish
     if (Object([STEPS.FISH_PULL, STEPS.FISH_PULL_HALF]).includes(step)) {
+      console.log("here");
+      setStartTime(Date.now());
+      setTime(0);
+      playSoundHookFish();
+      setStatus(STATUS.FISH_PULLED);
+      setStep(STEPS.PULL_ROD_HALF);
+      setRunTime(true);
+      const timeoutId = setTimeout(() => {
+        startMinigame();
+      }, 300);
+      return () => clearTimeout(timeoutId);
+    }
+    //Hook fish before right time
+    if (status === STATUS.SUNK_FLOAT) {
+      console.log("here");
       setStartTime(Date.now());
       setTime(0);
       playSoundHookFish();

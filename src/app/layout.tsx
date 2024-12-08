@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { WindowScaler } from "@/components/WindowScaler";
 import { GlobalVariablesContextProvider } from "@/context/GlobalVariables";
+import { BaitsProvider } from "@/context/Baits";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,7 +24,9 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <GlobalVariablesContextProvider>
-          <WindowScaler>{children}</WindowScaler>
+          <BaitsProvider>
+            <WindowScaler>{children}</WindowScaler>
+          </BaitsProvider>
         </GlobalVariablesContextProvider>
       </body>
     </html>

@@ -18,7 +18,7 @@ const fishWeights = {
 
 const getProbabilities = () => {
   return {
-    biteProbability1sec: 0.1,
+    biteProbability1sec: 0.3,
     fishChances: fishChances,
     fishWeights: fishWeights,
   };

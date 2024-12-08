@@ -19,7 +19,7 @@ export interface Fish extends FishKind {
 }
 
 export interface Bait {
-  id: string;
+  id: BaitId;
   name: string;
   src: StaticImageData;
   price: number;
@@ -29,10 +29,7 @@ export interface BaitWithAmount extends Bait {
   amount: number;
 }
 
-export type UserBaits = Record<
-  0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9,
-  BaitWithAmount | undefined
->;
+export type UserBaits = (BaitWithAmount | undefined)[];
 
 export interface BaitMap {
   id: BaitId;
