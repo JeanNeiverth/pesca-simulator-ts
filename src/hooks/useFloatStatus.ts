@@ -69,14 +69,14 @@ const FLOAT_STATES = [
     id: STATUS.PULLED_ROD_HALF,
     x: 500,
     y: 500,
-    croppedPct: 0,
+    croppedPct: 30,
     timeToAchieveMs: 300,
   },
   {
     id: STATUS.PULLED_ROD,
     x: 500,
     y: 500,
-    croppedPct: 0,
+    croppedPct: 30,
     timeToAchieveMs: 800,
   },
 ];
