@@ -1,156 +1,148 @@
 import { ANIMATION } from "@/constants";
 import { useEffect, useState } from "react";
-import { PositionEncoder } from "./PositionEncoder";
+import { CardinalSpline } from "@/libs/cardinal-spline";
+import Papa from "papaparse";
 
-export type AnimationStatusType = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
-export type AnimationStepType = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+export type AnimationStatusType = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+export type AnimationStepType = 1 | 2 | 3 | 4 | 5 | 6;
 
 export const STATUS = {
   INITIAL: 0,
   ARMED_ROD: 1,
-  THROWN_ROD_HALF: 2,
-  THROWN_ROD: 3,
-  THROWN_FLOAT: 4,
-  SUNK_FLOAT: 5,
-  FISH_PULLED_HALF: 6,
-  FISH_PULLED: 7,
-  PULLED_ROD_HALF: 8,
-  PULLED_ROD: 9,
+  THROWN_ROD: 2,
+  THROWN_FLOAT: 3,
+  SUNK_FLOAT: 4,
+  FISH_PULLED: 5,
+  PULLED_ROD: 6,
 } as const;
 
 export const STEPS = {
   ARM_ROD: 1,
-  THROW_ROD_HALF: 2,
-  THROW_ROD: 3,
-  THROW_FLOAT: 4,
-  SINK_FLOAT: 5,
-  FISH_PULL_HALF: 6,
-  FISH_PULL: 7,
-  PULL_ROD_HALF: 8,
-  PULL_ROD: 9,
+  THROW_ROD: 2,
+  THROW_FLOAT: 3,
+  SINK_FLOAT: 4,
+  FISH_PULL: 5,
+  PULL_ROD: 6,
 } as const;
 
-const ROD_STATES = [
-  {
-    id: STATUS.INITIAL,
-    x: 1400,
-    y: 300,
-    angle: -10,
-    timeToAchieveMs: 2000,
-  },
-  {
-    id: STATUS.ARMED_ROD,
-    x: 2400,
-    y: 450,
-    angle: 60,
-    timeToAchieveMs: 800,
-  },
-  {
-    id: STATUS.THROWN_ROD_HALF,
-    x: 1000,
-    y: 500,
-    angle: -50,
-    timeToAchieveMs: 300,
-  },
-  {
-    id: STATUS.THROWN_ROD,
-    x: 1400,
-    y: 300,
-    angle: -10,
-    timeToAchieveMs: 600,
-  },
-  {
-    id: STATUS.THROWN_FLOAT,
-    x: 1400,
-    y: 300,
-    angle: -10,
-    timeToAchieveMs: 1000,
-  },
-  {
-    id: STATUS.SUNK_FLOAT,
-    x: 1400,
-    y: 300,
-    angle: -10,
-    timeToAchieveMs: 0,
-  },
-  {
-    id: STATUS.FISH_PULLED_HALF,
-    x: 1397,
-    y: 300,
-    angle: -10.1,
-    timeToAchieveMs: 400,
-  },
-  {
-    id: STATUS.FISH_PULLED,
-    x: 1400,
-    y: 300,
-    angle: -10,
-    timeToAchieveMs: 400,
-  },
-  {
-    id: STATUS.PULLED_ROD_HALF,
-    x: 2400,
-    y: 450,
-    angle: 60,
-    timeToAchieveMs: 300,
-  },
-  {
-    id: STATUS.PULLED_ROD,
-    x: 1400,
-    y: 300,
-    angle: -10,
-    timeToAchieveMs: 800,
-  },
-];
-
-type StepMappingType = {
-  id: number;
-  x: PositionEncoder;
-  y: PositionEncoder;
-  angle: PositionEncoder;
+type AnimationDataRow = {
+  status: AnimationStatusType;
+  step: AnimationStepType;
+  rodX: number;
+  rodY: number;
+  rodAngle: number;
+  floatX: number;
+  floatY: number;
+  floatCroppedPct: number;
+  durationMs: number;
 };
 
-const stepMapping: StepMappingType[] = ROD_STATES.map((state) => {
-  const nextState = ROD_STATES.filter(
-    (_nextState) => _nextState.id === state.id + 1
-  )[0];
-  if (nextState) {
-    return {
-      id: state.id + 1,
-      x: new PositionEncoder(state.x, nextState.x, nextState.timeToAchieveMs),
-      y: new PositionEncoder(state.y, nextState.y, nextState.timeToAchieveMs),
-      angle: new PositionEncoder(
-        state.angle,
-        nextState.angle,
-        nextState.timeToAchieveMs
-      ),
-    };
-  } else {
-    const state1 = ROD_STATES[0];
-    return {
-      id: state.id + 1,
-      x: new PositionEncoder(state.x, state1.x, state1.timeToAchieveMs),
-      y: new PositionEncoder(state.y, state1.y, state1.timeToAchieveMs),
-      angle: new PositionEncoder(
-        state.angle,
-        state1.angle,
-        state1.timeToAchieveMs
-      ),
-    };
-  }
-});
+type StepMappingType = {
+  step: number;
+  rodX: CardinalSpline;
+  rodY: CardinalSpline;
+  rodAngle: CardinalSpline;
+  floatX: CardinalSpline;
+  floatY: CardinalSpline;
+  floatCroppedPct: CardinalSpline;
+};
 
-function computeXYAngle(
+const stepMappingTypeKeys = [
+  "rodX",
+  "rodY",
+  "rodAngle",
+  "floatX",
+  "floatY",
+  "floatCroppedPct",
+] as const;
+
+const animationData = `status,step,rodX,rodY,rodAngle,floatX,floatY,floatCroppedPct,durationMs
+0,1,1400,300,-10,1340,900,0,800
+,1,2400,450,60,2400,1100,0,800
+1,2,2400,450,60,2400,1100,0,900
+,2,1000,500,-50,1800,-1000,0,500
+,2,1400,300,-10,1200,-50,0,900
+2,3,1400,300,-10,1200,-50,0,600
+,3,1400,300,-10,800,500,0,600
+3,4,1400,300,-10,800,500,0,1000
+,4,1400,300,-10,800,500,40,1000
+4,5,1400,300,-10,800,500,40,800
+,5,1397,300,-10.1,800,520,80,400
+,5,1400,300,-10,800,500,40,800
+5,6,1400,300,-10,800,500,40,1100
+,6,2400,450,60,800,500,30,300
+,6,1400,300,-10,800,500,30,1100`;
+
+const parsedData = Papa.parse<AnimationDataRow>(animationData, {
+  header: true,
+  dynamicTyping: true,
+  skipEmptyLines: true,
+}).data;
+
+function parseAnimationStatus(): Omit<AnimationDataRow, "step">[] {
+  // Filter only rows where status is not empty/null
+  const mainStates = parsedData.filter((row: any) => {
+    return row.status !== null && row.status !== "";
+  });
+
+  // Convert to animation states format
+  const animationStatus = mainStates.map((row: AnimationDataRow) => ({
+    status: row.status,
+    rodX: row.rodX,
+    rodY: row.rodY,
+    rodAngle: row.rodAngle,
+    floatX: row.floatX,
+    floatY: row.floatY,
+    floatCroppedPct: row.floatCroppedPct,
+    durationMs: row.durationMs,
+  }));
+
+  return animationStatus;
+}
+
+function parseAnimationSteps(): StepMappingType[] {
+  const numberOfSteps = parsedData.at(-1)!.step;
+
+  let animationSteps = [] as StepMappingType[];
+  let i = 1;
+  while (i <= numberOfSteps) {
+    const splineSteps = parsedData.filter((row) => row.step === i);
+
+    let animationStep = {} as StepMappingType;
+    animationStep.step = i;
+    for (const key of stepMappingTypeKeys) {
+      const points = [] as number[];
+      const times = [] as number[];
+      for (let k = 0; k < splineSteps.length; k++) {
+        points.push(splineSteps[k][key]);
+        if (k != 0) times.push(splineSteps[k].durationMs);
+      }
+      animationStep[key] = new CardinalSpline(points, times);
+    }
+    animationSteps.push(animationStep);
+    i = i + 1;
+  }
+
+  return animationSteps;
+}
+
+const animationStatus = parseAnimationStatus();
+const animationSteps = parseAnimationSteps();
+
+console.log({ animationStatus, animationSteps });
+
+function computeSplineOutputs(
   step: number,
   t: number
-): { x: number; y: number; angle: number } {
-  const positionMapper = stepMapping.filter(
-    (position) => position.id === step
+): Record<(typeof stepMappingTypeKeys)[number], number> {
+  const stepMapping = animationSteps.filter(
+    (stepMapping) => stepMapping.step === step
   )[0];
-  const x = positionMapper.x.computePosition(t);
-  const y = positionMapper.y.computePosition(t);
-  const angle = positionMapper.angle.computePosition(t);
-  return { x, y, angle };
+  const result = {} as Record<(typeof stepMappingTypeKeys)[number], number>;
+  for (const key of stepMappingTypeKeys) {
+    result[key] = stepMapping[key].compute(t);
+  }
+  return result;
 }
 
 function computeBlur(rodAngleDiff: number): number {
@@ -158,10 +150,12 @@ function computeBlur(rodAngleDiff: number): number {
 }
 
 export const useRodStatus = ({
+  status,
   step,
   time,
   runTime,
 }: {
+  status: AnimationStatusType;
   step: AnimationStepType;
   time: number;
   runTime: boolean;
@@ -170,35 +164,58 @@ export const useRodStatus = ({
   rodY: number;
   rodAngle: number;
   rodBlur: number;
+  floatX: number;
+  floatY: number;
+  floatCroppedPct: number;
   timeToEnd: number;
 } => {
-  const [rodX, setRodX] = useState(ROD_STATES[0].x);
-  const [rodY, setRodY] = useState(ROD_STATES[0].y);
-  const [rodAngle, setRodAngle] = useState(ROD_STATES[0].angle);
+  const [rodX, setRodX] = useState(animationStatus[0].rodX);
+  const [rodY, setRodY] = useState(animationStatus[0].rodY);
+  const [rodAngle, setRodAngle] = useState(animationStatus[0].rodAngle);
   const [rodBlur, setRodBlur] = useState(0);
+  const [floatX, setFloatX] = useState(animationStatus[0].floatX);
+  const [floatY, setFloatY] = useState(animationStatus[0].floatY);
+  const [floatCroppedPct, setFloatCroppedPct] = useState(
+    animationStatus[0].floatCroppedPct
+  );
   const [timeToEnd, setTimeToEnd] = useState(0);
 
   useEffect(() => {
     if (!runTime) {
-      setRodX(ROD_STATES[step - 1].x);
-      setRodY(ROD_STATES[step - 1].y);
-      setRodAngle(ROD_STATES[step - 1].angle);
+      setRodX(animationStatus[status].rodX);
+      setRodY(animationStatus[status].rodY);
+      setRodAngle(animationStatus[status].rodAngle);
       setRodBlur(0);
+      setFloatX(animationStatus[status].floatX);
+      setFloatY(animationStatus[status].floatY);
+      setFloatCroppedPct(animationStatus[status].floatCroppedPct);
       return;
     }
-    const { x: newX, y: newY, angle: newAngle } = computeXYAngle(step, time);
-    const newBlur = computeBlur(newAngle - rodAngle);
+    const result = computeSplineOutputs(step, time);
+    const newBlur = computeBlur(result.rodAngle - rodAngle);
 
-    setRodX(newX);
-    setRodY(newY);
-    setRodAngle(newAngle);
+    setRodX(result.rodX);
+    setRodY(result.rodY);
+    setRodAngle(result.rodAngle);
     setRodBlur(newBlur);
-  }, [step, time, rodAngle, runTime]);
+    setFloatX(result.floatX);
+    setFloatY(result.floatY);
+    setFloatCroppedPct(result.floatCroppedPct);
+  }, [status, step, time, rodAngle, runTime]);
 
   useEffect(() => {
-    setTimeToEnd(ROD_STATES[step].timeToAchieveMs - time);
+    setTimeToEnd(animationStatus[status].durationMs - time);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [time]);
 
-  return { rodX, rodY, rodAngle, rodBlur, timeToEnd };
+  return {
+    rodX,
+    rodY,
+    rodAngle,
+    rodBlur,
+    floatX,
+    floatY,
+    floatCroppedPct,
+    timeToEnd,
+  };
 };

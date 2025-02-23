@@ -5,7 +5,6 @@ import { STATUS, STEPS } from "@/hooks/useRodStatus";
 import useSound from "use-sound";
 
 import { useRodStatus } from "@/hooks/useRodStatus";
-import { useFloatStatus } from "@/hooks/useFloatStatus";
 
 import { computeTopPosition } from "@/utils/computeTopPosition";
 import { useGlobalVariables } from "@/context/GlobalVariables";
@@ -38,13 +37,16 @@ export const useResolveSteps = ({
 
   const { addBait, selectedBait } = useBaits();
 
-  const { rodX, rodY, rodAngle, rodBlur, timeToEnd } = useRodStatus({
-    step,
-    time,
-    runTime,
-  });
-
-  const { floatX, floatY, croppedPct } = useFloatStatus({
+  const {
+    rodX,
+    rodY,
+    rodAngle,
+    rodBlur,
+    timeToEnd,
+    floatX,
+    floatY,
+    floatCroppedPct,
+  } = useRodStatus({
     status,
     step,
     time,
@@ -76,7 +78,7 @@ export const useResolveSteps = ({
   useEffect(() => {
     if (status === STATUS.SUNK_FLOAT) {
       const timeoutId = setTimeout(() => {
-        setStep(STEPS.FISH_PULL_HALF);
+        setStep(STEPS.FISH_PULL);
         playSoundWaterSplash();
         setStartTime(Date.now());
         setTime(0);
@@ -94,18 +96,7 @@ export const useResolveSteps = ({
     if (timeToEnd < 0 && step === STEPS.ARM_ROD) {
       setRunTime(false);
       setStatus(STATUS.ARMED_ROD);
-      setStep(STEPS.THROW_ROD_HALF);
-      return;
-    }
-    if (timeToEnd < 0 && step === STEPS.THROW_ROD_HALF) {
-      setStartTime(Date.now());
-      setTime(0);
-      setStatus(STATUS.THROWN_ROD_HALF);
       setStep(STEPS.THROW_ROD);
-      const { fishToGet, minigameInput, waitingTime } = generateFish();
-      setFish(fishToGet);
-      setMinigameInput(minigameInput);
-      setWaitingTime(waitingTime);
       return;
     }
     if (timeToEnd < 0 && step === STEPS.THROW_ROD) {
@@ -113,6 +104,10 @@ export const useResolveSteps = ({
       setTime(0);
       setStatus(STATUS.THROWN_ROD);
       setStep(STEPS.THROW_FLOAT);
+      const { fishToGet, minigameInput, waitingTime } = generateFish();
+      setFish(fishToGet);
+      setMinigameInput(minigameInput);
+      setWaitingTime(waitingTime);
       return;
     }
     if (timeToEnd < 0 && step === STEPS.THROW_FLOAT) {
@@ -121,24 +116,10 @@ export const useResolveSteps = ({
       setStatus(STATUS.SUNK_FLOAT);
       return;
     }
-    if (timeToEnd < 0 && step === STEPS.FISH_PULL_HALF) {
-      setStartTime(Date.now());
-      setTime(0);
-      setStatus(STATUS.FISH_PULLED_HALF);
-      setStep(STEPS.FISH_PULL);
-      return;
-    }
     if (timeToEnd < 0 && step === STEPS.FISH_PULL) {
       setRunTime(false);
       setStatus(STATUS.INITIAL);
       setStep(STEPS.ARM_ROD);
-      return;
-    }
-    if (timeToEnd < 0 && step === STEPS.PULL_ROD_HALF) {
-      setStartTime(Date.now());
-      setTime(0);
-      setStatus(STATUS.PULLED_ROD_HALF);
-      setStep(STEPS.PULL_ROD);
       return;
     }
     if (timeToEnd < 0 && step === STEPS.PULL_ROD) {
@@ -172,7 +153,7 @@ export const useResolveSteps = ({
       setTime(0);
       playSoundThrowRod();
       setStatus(STATUS.ARMED_ROD);
-      setStep(STEPS.THROW_ROD_HALF);
+      setStep(STEPS.THROW_ROD);
     }
 
     // console.log("mouseup");
@@ -180,12 +161,12 @@ export const useResolveSteps = ({
 
   function handleMouseDown() {
     // Hook fish
-    if (Object([STEPS.FISH_PULL, STEPS.FISH_PULL_HALF]).includes(step)) {
+    if (step === STEPS.FISH_PULL) {
       setStartTime(Date.now());
       setTime(0);
       playSoundHookFish();
       setStatus(STATUS.FISH_PULLED);
-      setStep(STEPS.PULL_ROD_HALF);
+      setStep(STEPS.PULL_ROD);
       setRunTime(true);
       const timeoutId = setTimeout(() => {
         startMinigame();
@@ -198,7 +179,7 @@ export const useResolveSteps = ({
       setTime(0);
       playSoundHookFish();
       setStatus(STATUS.FISH_PULLED);
-      setStep(STEPS.PULL_ROD_HALF);
+      setStep(STEPS.PULL_ROD);
       setRunTime(true);
     }
 
@@ -242,7 +223,7 @@ export const useResolveSteps = ({
     x: floatX,
     y: floatY,
     blur: rodBlur,
-    croppedPct,
+    croppedPct: floatCroppedPct,
   };
 
   return {

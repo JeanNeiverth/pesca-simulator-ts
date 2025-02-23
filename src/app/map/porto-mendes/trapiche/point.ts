@@ -2,7 +2,7 @@ import { FishId, BaitId, LocationId, LOCATIONS } from "@/fishes";
 import { Bait, Fish } from "@/types";
 import { FishingPoint, GetProbabilitiesFn } from "@/utils/fishingPoint";
 import { gaussianRandom } from "@/utils/gaussian";
-import imageSrc from "./image.png";
+import imageSrc from "./porto-mentes.jpg";
 import { quadraticConcave, sigmoid } from "@/utils/auxFunctions";
 
 const fishChances = {
