@@ -162,7 +162,7 @@ export const useRodStatus = ({
     const fx1 = Math.round(1710 + d * 100);
     const fy1 = Math.round(100 - d * 500);
 
-    const fx2 = Math.round(1220 + d * 100);
+    const fx2 = Math.round(1020 + d * 300);
     const fy2 = Math.round(700 - d * 800);
 
     const fx3 = Math.round(930 - d * 100);
