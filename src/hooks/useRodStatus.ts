@@ -1,7 +1,8 @@
 import { ANIMATION } from "@/constants";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CardinalSpline } from "@/libs/cardinal-spline";
 import Papa from "papaparse";
+import { useThrowingDistance } from "./useThrowingDistance";
 
 export type AnimationStatusType = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export type AnimationStepType = 1 | 2 | 3 | 4 | 5 | 6;
@@ -59,33 +60,12 @@ const stepMappingTypeKeys = [
   "lineCurvature",
 ] as const;
 
-const animationData = `status,step,rodX,rodY,rodAngle,floatX,floatY,floatCroppedPct,lineCurvature,durationMs
-0,1,1400,300,-10,1340,900,0,0,800
-,1,2400,450,60,2400,1100,0,0,800
-1,2,2400,450,60,2400,1100,0,0,900
-,2,1000,500,-50,1800,-1000,0,-0.2,500
-,2,1400,300,-10,1200,-50,0,-0.2,900
-2,3,1400,300,-10,1200,-50,0,-0.2,600
-,3,1400,300,-10,850,700,0,-0.2,600
-3,4,1400,300,-10,850,700,0,-0.2,1000
-,4,1400,300,-10,850,700,40,0,1000
-4,5,1400,300,-10,850,700,40,0,800
-,5,1397,300,-10.1,850,720,80,0,400
-,5,1400,300,-10,850,700,40,0,800
-5,6,1400,300,-10,850,700,40,0,1100
-,6,2400,450,60,850,700,30,0,300
-,6,1400,300,-10,850,700,30,0,1100`;
-
-const parsedData = Papa.parse<AnimationDataRow>(animationData, {
-  header: true,
-  dynamicTyping: true,
-  skipEmptyLines: true,
-}).data;
-
-function parseAnimationStatus(): Omit<AnimationDataRow, "step">[] {
+function parseAnimationStatus(
+  parsedData: AnimationDataRow[]
+): Omit<AnimationDataRow, "step">[] {
   // Filter only rows where status is not empty/null
   const mainStates = parsedData.filter((row: any) => {
-    return row.status !== null && row.status !== "";
+    return typeof row.status === "number";
   });
 
   // Convert to animation states format
@@ -106,7 +86,9 @@ function parseAnimationStatus(): Omit<AnimationDataRow, "step">[] {
   return animationStatus;
 }
 
-function parseAnimationSteps(): StepMappingType[] {
+function parseAnimationSteps(
+  parsedData: AnimationDataRow[]
+): StepMappingType[] {
   const numberOfSteps = parsedData.at(-1)!.step;
 
   let animationSteps = [] as StepMappingType[];
@@ -132,14 +114,10 @@ function parseAnimationSteps(): StepMappingType[] {
   return animationSteps;
 }
 
-const animationStatus = parseAnimationStatus();
-const animationSteps = parseAnimationSteps();
-
-console.log({ animationStatus, animationSteps });
-
 function computeSplineOutputs(
   step: number,
-  t: number
+  t: number,
+  animationSteps: StepMappingType[]
 ): Record<(typeof stepMappingTypeKeys)[number], number> {
   const stepMapping = animationSteps.filter(
     (stepMapping) => stepMapping.step === step
@@ -176,6 +154,53 @@ export const useRodStatus = ({
   lineCurvature: number;
   timeToEnd: number;
 } => {
+  const { d: throwingDistance } = useThrowingDistance();
+
+  const d = throwingDistance ?? 0;
+
+  const { animationStatus, animationSteps } = useMemo(() => {
+    const fx1 = Math.round(1710 + d * 100);
+    const fy1 = Math.round(100 - d * 500);
+
+    const fx2 = Math.round(1220 + d * 100);
+    const fy2 = Math.round(700 - d * 800);
+
+    const fx3 = Math.round(930 - d * 100);
+    const fy3 = Math.round(800 - d * 240);
+
+    const t1 = Math.round(500);
+    const t2 = Math.round(1100 + d * 100);
+    const t3 = Math.round(100 + d * 700);
+
+    const animationData = `status,step,rodX,rodY,rodAngle,floatX,floatY,floatCroppedPct,lineCurvature,durationMs
+    0,1,1400,300,-10  ,  1340,          900,  0,   0,800
+     ,1,2400,450, 60  ,  2400,         1100,  0,   0,800
+    1,2,2400,450, 60  ,  2400,         800,  0,   0,${t2}
+     ,2,1000,500,-50  ,${fx1},       ${fy1},  0,-0.05,${t1}
+     ,2,1400,300,-10  ,${fx2},       ${fy2},  0,-0.05,${t2}
+    2,3,1400,300,-10  ,${fx2},       ${fy2},  0,-0.05,${t3}
+     ,3,1400,300,-10  ,${fx3},       ${fy3},  0,-0.2,${t3}
+    3,4,1400,300,-10  ,${fx3},       ${fy3},  0,-0.2,1000
+     ,4,1400,300,-10  ,${fx3},       ${fy3}, 40,   0,1000
+    4,5,1400,300,-10  ,${fx3},       ${fy3}, 40,   0,800
+     ,5,1397,300,-10.1,${fx3},  ${fy3 + 20}, 80,   0,400
+     ,5,1400,300,-10  ,${fx3},       ${fy3}, 40,   0,800
+    5,6,1400,300,-10  ,${fx3},       ${fy3}, 40,   0,1100
+     ,6,2400,450, 60  ,${fx3},       ${fy3}, 30,   0,300
+     ,6,1400,300,-10  ,${fx3},       ${fy3}, 30,   0,1100`;
+    console.log({ animationData });
+    const parsedData = Papa.parse<AnimationDataRow>(animationData, {
+      header: true,
+      dynamicTyping: true,
+      skipEmptyLines: true,
+    }).data;
+
+    return {
+      animationStatus: parseAnimationStatus(parsedData),
+      animationSteps: parseAnimationSteps(parsedData),
+    };
+  }, [d]);
+
   const [rodX, setRodX] = useState(animationStatus[0].rodX);
   const [rodY, setRodY] = useState(animationStatus[0].rodY);
   const [rodAngle, setRodAngle] = useState(animationStatus[0].rodAngle);
@@ -201,7 +226,7 @@ export const useRodStatus = ({
       setFloatCroppedPct(animationStatus[status].floatCroppedPct);
       return;
     }
-    const result = computeSplineOutputs(step, time);
+    const result = computeSplineOutputs(step, time, animationSteps);
     const newBlur = computeBlur(result.rodAngle - rodAngle);
 
     setRodX(result.rodX);
@@ -212,7 +237,7 @@ export const useRodStatus = ({
     setFloatY(result.floatY);
     setFloatCroppedPct(result.floatCroppedPct);
     setLineCurvature(result.lineCurvature);
-  }, [status, step, time, rodAngle, runTime]);
+  }, [status, step, time, rodAngle, runTime, animationStatus, animationSteps]);
 
   useEffect(() => {
     setTimeToEnd(animationStatus[status].durationMs - time);
