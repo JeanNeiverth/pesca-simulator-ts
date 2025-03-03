@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import rod from "../images/vara.png";
 import { ANIMATION } from "@/constants";
 import { STATUS, STEPS } from "@/hooks/useRodStatus";
@@ -46,6 +46,7 @@ export const useResolveSteps = ({
     floatX,
     floatY,
     floatCroppedPct,
+    lineCurvature,
   } = useRodStatus({
     status,
     step,
@@ -210,6 +211,7 @@ export const useResolveSteps = ({
     y1: yTopRod,
     x2: xTopFloat,
     y2: yTopFloat,
+    curvature: lineCurvature,
   };
 
   const rodParams = {
