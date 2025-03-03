@@ -9,17 +9,20 @@ export function Float({
     y: number;
     blur: number;
     croppedPct: number;
+    scale: number;
   };
 }) {
-  const { x, y, blur, croppedPct } = params;
+  const { x, y, blur, croppedPct, scale } = params;
 
-  const croppedSize = 40 * (1 - croppedPct / 100);
+  const size = (40 * scale).toFixed(2);
+
+  const croppedSize = 40 * scale * (1 - croppedPct / 100);
 
   return (
     <div
-      className="absolute"
+      className="absolute flex justify-center items-start"
       style={{
-        maxWidth: "40px",
+        maxWidth: `${size}px`,
         maxHeight: `${croppedSize}px`,
         left: `${x}px`,
         top: `${y}px`,
@@ -29,8 +32,8 @@ export function Float({
       <Image
         src={float}
         alt=""
-        width="40"
-        height="40"
+        width={Number(size)}
+        height={Number(size)}
         style={{
           filter: `blur(${blur}px)`,
           objectFit: "cover",

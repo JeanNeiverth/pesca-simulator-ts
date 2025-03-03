@@ -45,6 +45,7 @@ export const useResolveSteps = ({
     timeToEnd,
     floatX,
     floatY,
+    floatScale,
     floatCroppedPct,
     lineCurvature,
   } = useRodStatus({
@@ -202,8 +203,8 @@ export const useResolveSteps = ({
   const { xTop: xTopFloat, yTop: yTopFloat } = computeTopPosition(
     floatX,
     floatY,
-    40,
-    40
+    40 * floatScale,
+    40 * floatScale
   );
 
   const fishingLineParams = {
@@ -226,6 +227,7 @@ export const useResolveSteps = ({
     y: floatY,
     blur: rodBlur,
     croppedPct: floatCroppedPct,
+    scale: floatScale,
   };
 
   return {

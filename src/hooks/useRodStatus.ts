@@ -34,6 +34,7 @@ type AnimationDataRow = {
   rodAngle: number;
   floatX: number;
   floatY: number;
+  floatScale: number;
   floatCroppedPct: number;
   lineCurvature: number;
   durationMs: number;
@@ -46,6 +47,7 @@ type StepMappingType = {
   rodAngle: CardinalSpline;
   floatX: CardinalSpline;
   floatY: CardinalSpline;
+  floatScale: CardinalSpline;
   floatCroppedPct: CardinalSpline;
   lineCurvature: CardinalSpline;
 };
@@ -56,6 +58,7 @@ const stepMappingTypeKeys = [
   "rodAngle",
   "floatX",
   "floatY",
+  "floatScale",
   "floatCroppedPct",
   "lineCurvature",
 ] as const;
@@ -76,6 +79,7 @@ function parseAnimationStatus(
     rodAngle: row.rodAngle,
     floatX: row.floatX,
     floatY: row.floatY,
+    floatScale: row.floatScale,
     floatCroppedPct: row.floatCroppedPct,
     lineCurvature: row.lineCurvature,
     durationMs: row.durationMs,
@@ -150,6 +154,7 @@ export const useRodStatus = ({
   rodBlur: number;
   floatX: number;
   floatY: number;
+  floatScale: number;
   floatCroppedPct: number;
   lineCurvature: number;
   timeToEnd: number;
@@ -172,22 +177,25 @@ export const useRodStatus = ({
     const t2 = Math.round(1100 + d * 100);
     const t3 = Math.round(100 + d * 700);
 
-    const animationData = `status,step,rodX,rodY,rodAngle,floatX,floatY,floatCroppedPct,lineCurvature,durationMs
-    0,1,1400,300,-10  ,  1340,          900,  0,   0,800
-     ,1,2400,450, 60  ,  2400,         1100,  0,   0,800
-    1,2,2400,450, 60  ,  2400,         800,  0,   0,${t2}
-     ,2,1000,500,-50  ,${fx1},       ${fy1},  0,-0.05,${t1}
-     ,2,1400,300,-10  ,${fx2},       ${fy2},  0,-0.05,${t2}
-    2,3,1400,300,-10  ,${fx2},       ${fy2},  0,-0.05,${t3}
-     ,3,1400,300,-10  ,${fx3},       ${fy3},  0,-0.2,${t3}
-    3,4,1400,300,-10  ,${fx3},       ${fy3},  0,-0.2,1000
-     ,4,1400,300,-10  ,${fx3},       ${fy3}, 40,   0,1000
-    4,5,1400,300,-10  ,${fx3},       ${fy3}, 40,   0,800
-     ,5,1397,300,-10.1,${fx3},  ${fy3 + 20}, 80,   0,400
-     ,5,1400,300,-10  ,${fx3},       ${fy3}, 40,   0,800
-    5,6,1400,300,-10  ,${fx3},       ${fy3}, 40,   0,1100
-     ,6,2400,450, 60  ,${fx3},       ${fy3}, 30,   0,300
-     ,6,1400,300,-10  ,${fx3},       ${fy3}, 30,   0,1100`;
+    const s1 = 1 - d * 0.2;
+    const s2 = 1 - d * 0.75;
+
+    const animationData = `status,step,rodX,rodY,rodAngle,floatX,floatY,floatScale,floatCroppedPct,lineCurvature,durationMs
+    0,1,1400,300,-10  ,  1340,          900,1,  0,   0,800
+     ,1,2400,450, 60  ,  2400,         1100,1,  0,   0,800
+    1,2,2400,450, 60  ,  2400,          800,1,  0,   0,${t2}
+     ,2,1000,500,-50  ,${fx1},       ${fy1},1,  0,-0.05,${t1}
+     ,2,1400,300,-10  ,${fx2},       ${fy2},${s1},  0,-0.05,${t2}
+    2,3,1400,300,-10  ,${fx2},       ${fy2},${s1},  0,-0.05,${t3}
+     ,3,1400,300,-10  ,${fx3},       ${fy3},${s2},  0,-0.2,${t3}
+    3,4,1400,300,-10  ,${fx3},       ${fy3},${s2},  0,-0.2,1000
+     ,4,1400,300,-10  ,${fx3},       ${fy3},${s2}, 40,   0,1000
+    4,5,1400,300,-10  ,${fx3},       ${fy3},${s2}, 40,   0,800
+     ,5,1397,300,-10.1,${fx3},  ${fy3 + 20},${s2}, 80,   0,400
+     ,5,1400,300,-10  ,${fx3},       ${fy3},${s2}, 40,   0,800
+    5,6,1400,300,-10  ,${fx3},       ${fy3},${s2}, 40,   0,1100
+     ,6,2400,450, 60  ,${fx3},       ${fy3},${s2}, 30,   0,300
+     ,6,1400,300,-10  ,${fx3},       ${fy3},${s2}, 30,   0,1100`;
     console.log({ animationData });
     const parsedData = Papa.parse<AnimationDataRow>(animationData, {
       header: true,
@@ -207,6 +215,7 @@ export const useRodStatus = ({
   const [rodBlur, setRodBlur] = useState(0);
   const [floatX, setFloatX] = useState(animationStatus[0].floatX);
   const [floatY, setFloatY] = useState(animationStatus[0].floatY);
+  const [floatScale, setFloatScale] = useState(animationStatus[0].floatScale);
   const [floatCroppedPct, setFloatCroppedPct] = useState(
     animationStatus[0].floatCroppedPct
   );
@@ -223,6 +232,7 @@ export const useRodStatus = ({
       setRodBlur(0);
       setFloatX(animationStatus[status].floatX);
       setFloatY(animationStatus[status].floatY);
+      setFloatScale(animationStatus[status].floatScale);
       setFloatCroppedPct(animationStatus[status].floatCroppedPct);
       return;
     }
@@ -235,6 +245,7 @@ export const useRodStatus = ({
     setRodBlur(newBlur);
     setFloatX(result.floatX);
     setFloatY(result.floatY);
+    setFloatScale(result.floatScale);
     setFloatCroppedPct(result.floatCroppedPct);
     setLineCurvature(result.lineCurvature);
   }, [status, step, time, rodAngle, runTime, animationStatus, animationSteps]);
@@ -251,6 +262,7 @@ export const useRodStatus = ({
     rodBlur,
     floatX,
     floatY,
+    floatScale,
     floatCroppedPct,
     lineCurvature,
     timeToEnd,
