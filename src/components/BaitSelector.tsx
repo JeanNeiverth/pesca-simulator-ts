@@ -13,7 +13,7 @@ export const BaitSelector = () => {
       <span className="relative ml-2 top-[-30px] h-0 text-lg text-yellow-400 font-semibold">
         {selectedBait && selectedBait.name}
       </span>
-      <div className="flex w-[820px] h-[92px] items-center justify-start px-[10px] gap-[10px] bg-primary border-2 border-border rounded-xl">
+      <div className="flex w-[820px] h-[92px] items-center justify-start px-[10px]">
         {baits.map((bait, idx) => (
           <BaitContainer key={idx} bait={bait} baitKey={idx} />
         ))}
@@ -29,14 +29,17 @@ const BaitContainer = ({
   bait?: BaitWithAmount;
   baitKey: number;
 }) => {
-  const { selectBaitByKey, selectedBaitKey } = useBaits();
+  const { selectBaitByKey, selectedBaitKey, getBaitByKey } = useBaits();
   const { status } = useGlobalVariables();
 
   return (
     <div
       className={clsx(
-        "relative h-[72px] w-[72px] bg-[#969600] border border-border rounded-md hover:bg-accent cursor-pointer",
-        { "bg-accent": selectedBaitKey === baitKey }
+        "relative h-[72px] w-[72px] border-[1px] border-border transition-all",
+        { "bg-accent": selectedBaitKey === baitKey },
+        {
+          "bg-[#969600] cursor-pointer hover:bg-accent": getBaitByKey(baitKey as BaitIndex) !== undefined,
+        }
       )}
       onClick={() => {
         if (status === STATUS.INITIAL) selectBaitByKey(baitKey as BaitIndex);
@@ -52,13 +55,10 @@ const BaitContainer = ({
         />
       )}
       {bait && (
-        <div className="absolute top-[48px] w-[64px] text-right text-blue-950 font-semibold">
-          <span>{bait.amount}</span>
-        </div>
-      )}
-      {bait && (
-        <div className="absolute top-[-2px] left-[4px] w-[64px] text-left">
-          <span>{baitKey}</span>
+        <div className="absolute top-[48px] w-[64px] text-right text-black font-semibold">
+          <span className="text-shadow-md text-shadow-black">
+            {bait.amount}
+          </span>
         </div>
       )}
     </div>
